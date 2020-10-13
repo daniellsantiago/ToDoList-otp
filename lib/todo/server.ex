@@ -9,8 +9,8 @@ defmodule Todo.Server do
     GenServer.cast(todo_server, {:add_entry, new_entry})
   end
 
-  def entries(todo_server, date) do
-    GenServer.call(todo_server, {:entries, date})
+  def entries_by_date(todo_server, date) do
+    GenServer.call(todo_server, {:entries_by_date, date})
   end
 
   @impl GenServer
@@ -25,7 +25,14 @@ defmodule Todo.Server do
   end
 
   @impl GenServer
-  def handle_call({:entries, date}, _, todo_list) do
+  def handle_call({:entries_by_date, date}, _, todo_list) do
+    {
+      :reply,
+      Todo.List.entries_by_date(todo_list, date),
+      todo_list
+    }
+  end
+
     {
       :reply,
       Todo.List.entries(todo_list, date),
