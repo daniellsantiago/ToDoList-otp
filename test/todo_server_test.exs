@@ -12,12 +12,12 @@ defmodule TodoServerTest do
   end
 
   test "add_entry", context do
-    Todo.Server.add_entry(context[:todo_server], %{date: ~D[2018-12-19], title: "Dentist"})
-    assert(1 == Todo.Server.entries(context[:todo_server], ~D[2018-12-19]) |> length)
+    Todo.Server.add_entry(context[:todo_server], %{date: ~D[2020-12-19], title: "Dentist"})
+    entry = Todo.Server.entries_by_date(context[:todo_server], ~D[2020-12-19])
+    assert(1 == length(entry))
 
-    assert(
-      "Dentist" ==
-        (Todo.Server.entries(context[:todo_server], ~D[2018-12-19]) |> Enum.at(0)).title
-    )
+    assert("Dentist" == Enum.at(entry, 0).title)
+  end
+
   end
 end
