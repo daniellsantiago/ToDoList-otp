@@ -8,7 +8,7 @@ defmodule TodoServerTest do
   end
 
   test "no_entries", context do
-    assert([] == Todo.Server.entries(context[:todo_server], ~D[2018-12-19]))
+    assert([] == Todo.Server.entries(context[:todo_server]))
   end
 
   test "add_entry", context do
