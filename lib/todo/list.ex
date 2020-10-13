@@ -1,5 +1,8 @@
 defmodule Todo.List do
   defstruct auto_id: 1, entries: %{}
+  @moduledoc """
+  Module responsible to handle to-do list CRUD operations
+  """
   def new(entries \\ []) do
     Enum.reduce(
       entries,
