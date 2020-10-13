@@ -19,5 +19,13 @@ defmodule TodoServerTest do
     assert("Dentist" == Enum.at(entry, 0).title)
   end
 
+  test "find_all_entries", context do
+    Todo.Server.add_entry(context[:todo_server], %{date: ~D[2020-12-19], title: "Dentist"})
+    Todo.Server.add_entry(context[:todo_server], %{date: ~D[2020-12-20], title: "School"})
+    entries = Todo.Server.entries(context[:todo_server])
+    assert(2 == length(entries))
+    assert("Dentist" == Enum.at(entries, 0).title)
+    assert("School" == Enum.at(entries, 1).title)
+    assert([%{date: ~D[2020-12-19], id: 1, title: "Dentist"}, %{date: ~D[2020-12-20], id: 2, title: "School"}] == entries)
   end
 end
