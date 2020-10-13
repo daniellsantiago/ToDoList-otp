@@ -35,6 +35,11 @@ defmodule Todo.List do
     end
   end
 
+  def entries(todo_list) do
+    todo_list.entries
+    |> Enum.map(fn {_, entry} -> entry end)
+  end
+
   def entries_by_date(todo_list, date) do
     todo_list.entries
     |> Stream.filter(fn {_, entry} -> entry.date == date end)
