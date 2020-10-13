@@ -39,4 +39,10 @@ defmodule TodoServerTest do
     assert(title == "Shopping")
   end
 
+  test "delete entry", context do
+    Todo.Server.add_entry(context[:todo_server], %{date: ~D[2020-12-24], title: "Dentist"})
+    assert(1 == length Todo.Server.entries(context[:todo_server]))
+    Todo.Server.delete_entry(context[:todo_server], 1)
+    assert([] == Todo.Server.entries(context[:todo_server]))
+  end
 end
