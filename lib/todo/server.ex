@@ -1,6 +1,8 @@
 defmodule Todo.Server do
   use GenServer
-
+  @moduledoc """
+  Module responsible create a GenServer that manipulates Todo.List module
+  """
   def start do
     GenServer.start(__MODULE__, nil)
   end
