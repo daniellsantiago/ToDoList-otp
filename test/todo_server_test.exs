@@ -28,4 +28,15 @@ defmodule TodoServerTest do
     assert("School" == Enum.at(entries, 1).title)
     assert([%{date: ~D[2020-12-19], id: 1, title: "Dentist"}, %{date: ~D[2020-12-20], id: 2, title: "School"}] == entries)
   end
+
+  test "update entry", context do
+    Todo.Server.add_entry(context[:todo_server], %{date: ~D[2020-12-24], title: "Dentist"})
+    title = Enum.at(Todo.Server.entries_by_date(context[:todo_server], ~D[2020-12-24]), 0).title
+    assert(title == "Dentist")
+
+    Todo.Server.update_entry(context[:todo_server], 1, &Map.put(&1, :title, "Shopping"))
+    title = Enum.at(Todo.Server.entries_by_date(context[:todo_server], ~D[2020-12-24]), 0).title
+    assert(title == "Shopping")
+  end
+
 end
