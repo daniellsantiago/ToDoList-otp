@@ -1,30 +1,20 @@
 defmodule Todo.Server do
-  use GenServer
-  @moduledoc """
-  Module responsible create a GenServer that manipulates Todo.List module
-  """
-  def start(name) do
-    GenServer.start(__MODULE__, name)
+  use GenServer, restart: :temporary
+
+  def start_link(name) do
+    GenServer.start_link(Todo.Server, name, name: via_tuple(name))
   end
 
   def add_entry(todo_server, new_entry) do
     GenServer.cast(todo_server, {:add_entry, new_entry})
   end
 
-  def entries(todo_server) do
-    GenServer.call(todo_server, {:entries})
+  def entries(todo_server, date) do
+    GenServer.call(todo_server, {:entries, date})
   end
 
-  def entries_by_date(todo_server, date) do
-    GenServer.call(todo_server, {:entries_by_date, date})
-  end
-
-  def update_entry(todo_server, entry_id, updater_fun) do
-    GenServer.cast(todo_server, {:update_entry, entry_id, updater_fun})
-  end
-
-  def delete_entry(todo_server, entry_id) do
-    GenServer.cast(todo_server, {:delete_entry, entry_id})
+  defp via_tuple(name) do
+    Todo.ProcessRegistry.via_tuple({__MODULE__, name})
   end
 
   @impl GenServer
@@ -40,33 +30,10 @@ defmodule Todo.Server do
   end
 
   @impl GenServer
-  def handle_cast({:update_entry, entry_id, updater_fun}, {name, todo_list}) do
-    new_list = Todo.List.update_entry(todo_list, entry_id, updater_fun)
-    Todo.Database.store(name, new_list)
-    {:noreply,{name, new_list}}
-  end
-
-  @impl GenServer
-  def handle_cast({:delete_entry, entry_id}, {name, todo_list}) do
-    new_list = Todo.List.delete_entry(todo_list, entry_id)
-    Todo.Database.store(name, new_list)
-    {:noreply, {name, new_list}}
-  end
-
-  @impl GenServer
-  def handle_call({:entries_by_date, date}, _, {name, todo_list}) do
+  def handle_call({:entries, date}, _, {name, todo_list}) do
     {
       :reply,
-      Todo.List.entries_by_date(todo_list, date),
-      {name, todo_list}
-    }
-  end
-
-  @impl GenServer
-  def handle_call({:entries}, _, {name, todo_list}) do
-    {
-      :reply,
-      Todo.List.entries(todo_list),
+      Todo.List.entries(todo_list, date),
       {name, todo_list}
     }
   end
