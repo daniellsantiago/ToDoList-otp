@@ -1,51 +1,38 @@
 defmodule TodoCacheTest do
   use ExUnit.Case
 
-  setup do
-    {:ok, cache} = Todo.Cache.start()
-    on_exit(fn ->
-        GenServer.stop(cache)
-    end)
-    {:ok, todo_cache: cache}
+  setup_all do
+    {:ok, todo_system_pid} = Todo.System.start_link()
+    {:ok, todo_system_pid: todo_system_pid}
   end
 
-  test "server_process", context do
-    cache = context[:todo_cache]
-    bob_pid = Todo.Cache.server_process(cache, "bob")
+  test "server_process" do
+    bob_pid = Todo.Cache.server_process("bob")
 
-    assert bob_pid != Todo.Cache.server_process(cache, "alice")
-    assert bob_pid == Todo.Cache.server_process(cache, "bob")
-    clear_data("alice")
-    clear_data("bob")
+    assert bob_pid != Todo.Cache.server_process("alice")
+    assert bob_pid == Todo.Cache.server_process("bob")
   end
 
-  test "to-do operations", context do
-    cache = context[:todo_cache]
-    alice = Todo.Cache.server_process(cache, "alice")
-    Todo.Server.add_entry(alice, %{date: ~D[2018-12-19], title: "Dentist"})
-    entries = Todo.Server.entries_by_date(alice, ~D[2018-12-19])
+  test "to-do operations" do
+    jane = Todo.Cache.server_process("jane")
+    Todo.Server.add_entry(jane, %{date: ~D[2018-12-19], title: "Dentist"})
+    entries = Todo.Server.entries(jane, ~D[2018-12-19])
+
     assert [%{date: ~D[2018-12-19], title: "Dentist"}] = entries
-    clear_data("alice")
   end
 
-  test "persistence" do
-    {:ok, cache} = Todo.Cache.start()
-
-    john = Todo.Cache.server_process(cache, "john")
+  test "persistence", _context do
+    john = Todo.Cache.server_process("john")
     Todo.Server.add_entry(john, %{date: ~D[2018-12-20], title: "Shopping"})
-    assert 1 == length(Todo.Server.entries_by_date(john, ~D[2018-12-20]))
-    GenServer.stop(cache)
-    {:ok, cache} = Todo.Cache.start()
+    assert 1 == length(Todo.Server.entries(john, ~D[2018-12-20]))
+
+    Process.exit(john, :kill)
+
     entries =
-      cache
-      |> Todo.Cache.server_process("john")
-      |> Todo.Server.entries_by_date(~D[2018-12-20])
+      "john"
+      |> Todo.Cache.server_process()
+      |> Todo.Server.entries(~D[2018-12-20])
 
     assert [%{date: ~D[2018-12-20], title: "Shopping"}] = entries
-    clear_data("john")
-  end
-
-  defp clear_data(name) do
-    File.rm("./persist/" <> name)
   end
 end
