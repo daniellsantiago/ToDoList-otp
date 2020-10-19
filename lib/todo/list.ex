@@ -1,8 +1,6 @@
 defmodule Todo.List do
   defstruct auto_id: 1, entries: %{}
-  @moduledoc """
-  Module responsible to handle to-do list CRUD operations
-  """
+
   def new(entries \\ []) do
     Enum.reduce(
       entries,
@@ -22,6 +20,12 @@ defmodule Todo.List do
     %Todo.List{todo_list | entries: new_entries, auto_id: todo_list.auto_id + 1}
   end
 
+  def entries(todo_list, date) do
+    todo_list.entries
+    |> Stream.filter(fn {_, entry} -> entry.date == date end)
+    |> Enum.map(fn {_, entry} -> entry end)
+  end
+
   def update_entry(todo_list, %{} = new_entry) do
     update_entry(todo_list, new_entry.id, fn _ -> new_entry end)
   end
@@ -36,17 +40,6 @@ defmodule Todo.List do
         new_entries = Map.put(todo_list.entries, new_entry.id, new_entry)
         %Todo.List{todo_list | entries: new_entries}
     end
-  end
-
-  def entries(todo_list) do
-    todo_list.entries
-    |> Enum.map(fn {_, entry} -> entry end)
-  end
-
-  def entries_by_date(todo_list, date) do
-    todo_list.entries
-    |> Stream.filter(fn {_, entry} -> entry.date == date end)
-    |> Enum.map(fn {_, entry} -> entry end)
   end
 
   def delete_entry(todo_list, entry_id) do
