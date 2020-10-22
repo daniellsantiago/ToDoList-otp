@@ -1,11 +1,6 @@
 defmodule TodoCacheTest do
   use ExUnit.Case
 
-  setup_all do
-    {:ok, todo_system_pid} = Todo.System.start_link()
-    {:ok, todo_system_pid: todo_system_pid}
-  end
-
   test "server_process" do
     bob_pid = Todo.Cache.server_process("bob")
 
@@ -21,7 +16,7 @@ defmodule TodoCacheTest do
     assert [%{date: ~D[2018-12-19], title: "Dentist"}] = entries
   end
 
-  test "persistence", _context do
+  test "persistence" do
     john = Todo.Cache.server_process("john")
     Todo.Server.add_entry(john, %{date: ~D[2018-12-20], title: "Shopping"})
     assert 1 == length(Todo.Server.entries(john, ~D[2018-12-20]))
