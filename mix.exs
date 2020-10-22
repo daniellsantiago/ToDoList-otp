@@ -24,7 +24,11 @@ defmodule Todo.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.14", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
+      {:poolboy, "~> 1.5"},
+      {:cowboy, "~> 1.1"},
+      {:plug, "~> 1.4"},
+      {:plug_cowboy, "~> 1.0"}
     ]
   end
 end
